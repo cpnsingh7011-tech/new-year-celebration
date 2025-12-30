@@ -1,7 +1,8 @@
 /* ======================
    DATE & TEXT LOGIC
 ====================== */
-const newYearDate = new Date("January 1, 2026 00:00:00").getTime();
+const ENV = window.ENV || {};
+const newYearDate = new Date(ENV.countdownDate || "January 1, 2026 00:00:00").getTime();
 const title = document.getElementById("title");
 const wishText = document.getElementById("wishText");
 const overlay = document.getElementById("overlay");
@@ -142,6 +143,8 @@ resizeCanvas();
 let fireworks = [];
 let particles = [];
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const intensityMobile = ENV.fireworksIntensityMobile || 35;
+const intensityDesktop = ENV.fireworksIntensityDesktop || 60;
 
 class Firework {
   constructor(x = Math.random() * window.innerWidth) {
@@ -154,7 +157,7 @@ class Firework {
   update() {
     this.y -= this.speed;
     if (this.y <= this.targetY) {
-      const count = isMobile ? 35 : 60;
+      const count = isMobile ? intensityMobile : intensityDesktop;
       for (let i = 0; i < count; i++) {
         particles.push(new Particle(this.x, this.y, this.color));
       }
@@ -277,7 +280,7 @@ function createRipple(x, y) {
   ripple.style.top = `${y}px`;
 
   rippleContainer.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 1400);
+  setTimeout(() => ripple.remove(), ENV.rippleDurationMs || 1400);
 }
 window.addEventListener("click", (e) => {
   createRipple(e.clientX, e.clientY);
@@ -303,6 +306,7 @@ document.addEventListener("keydown", (e) => {
 });
 let devtoolsActive = false;
 function checkDevtools() {
+  if (ENV.enableDevtoolsShield === false) return;
   const threshold = 160;
   const open =
     (window.outerWidth - window.innerWidth > threshold) ||
@@ -340,3 +344,13 @@ function releaseLockdown() {
   timers.push(setInterval(updateCountdown, 1000));
   requestAnimationFrame(animate);
 }
+function applyTheme() {
+  const t = ENV.theme || {};
+  const root = document.documentElement;
+  if (t.primary) root.style.setProperty("--primary", t.primary);
+  if (t.secondary) root.style.setProperty("--secondary", t.secondary);
+  if (t.accent) root.style.setProperty("--accent", t.accent);
+  if (t.text) root.style.setProperty("--text", t.text);
+  if (t.bg) root.style.setProperty("--bg", t.bg);
+}
+applyTheme();

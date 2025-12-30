@@ -1,3 +1,10 @@
+:root {
+  --primary: #ffd700;
+  --secondary: #ff6ec7;
+  --accent: #00e0ff;
+  --text: #ffffff;
+  --bg: #000000;
+}
 * {
   margin: 0;
   padding: 0;
@@ -6,10 +13,10 @@
 }
 
 body {
-  background: radial-gradient(circle at top, #0f2027, #000);
+  background: radial-gradient(circle at top, #0f2027, var(--bg));
   min-height: 100svh;
   overflow: hidden;
-  color: #fff;
+  color: var(--text);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   -webkit-user-select: none;
   user-select: none;
@@ -96,7 +103,7 @@ canvas {
   color: #000;
   cursor: pointer;
   font-weight: 600;
-  background: linear-gradient(90deg, #ffd700, #ff6ec7, #00e0ff);
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
   background-size: 200% 100%;
   animation: btnflow 4s linear infinite;
 }
