@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <title>🎉 Happy New Year</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    .shield{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#000}
+    .shield .msg{color:#fff;font-size:clamp(1.1rem,4.5vw,1.6rem);padding:16px 20px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18)}
+  </style>
 </head>
 <body>
 
@@ -54,6 +57,10 @@
     document.querySelectorAll(".shield").forEach(function(n){ n.remove(); });
   }
   function load() {
+    var css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "style.css";
+    document.head.appendChild(css);
     var el = document.createElement("script");
     el.src = "script.js";
     el.defer = true;
