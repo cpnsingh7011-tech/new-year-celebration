@@ -88,24 +88,35 @@ setInterval(() => {
 ====================== */
 const canvas = document.getElementById("fireworks");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.style.width = `${window.innerWidth}px`;
+  canvas.style.height = `${window.innerHeight}px`;
+  canvas.width = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+}
+resizeCanvas();
 
 let fireworks = [];
 let particles = [];
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 class Firework {
-  constructor(x = Math.random() * canvas.width) {
+  constructor(x = Math.random() * window.innerWidth) {
     this.x = x;
-    this.y = canvas.height;
-    this.targetY = Math.random() * canvas.height / 2;
+    this.y = window.innerHeight;
+    this.targetY = Math.random() * window.innerHeight / 2;
     this.color = `hsl(${Math.random() * 360},100%,50%)`;
     this.speed = Math.random() * 4 + 4;
   }
   update() {
     this.y -= this.speed;
     if (this.y <= this.targetY) {
-      for (let i = 0; i < 60; i++) {
+      const count = isMobile ? 35 : 60;
+      for (let i = 0; i < count; i++) {
         particles.push(new Particle(this.x, this.y, this.color));
       }
       fireworks.splice(fireworks.indexOf(this), 1);
@@ -146,18 +157,26 @@ class Particle {
    CLICK CELEBRATION
 ====================== */
 window.addEventListener("click", (e) => {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     fireworks.push(new Firework(e.clientX));
   }
   randomWish();
 });
+window.addEventListener("touchstart", (e) => {
+  const t = e.touches[0];
+  if (!t) return;
+  for (let i = 0; i < 3; i++) {
+    fireworks.push(new Firework(t.clientX));
+  }
+  randomWish();
+}, { passive: true });
 
 /* ======================
    ANIMATION LOOP
 ====================== */
 function animate() {
   ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   if (Math.random() < 0.05) fireworks.push(new Firework());
 
@@ -172,8 +191,7 @@ function animate() {
 animate();
 
 window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  resizeCanvas();
 });
 
 /* ======================
@@ -207,23 +225,6 @@ setInterval(updateCountdown, 1000);
    DEEP GRADIENT RIPPLE
 ====================== */
 const rippleContainer = document.getElementById("ripple-container");
-
-function createRipple(x, y) {
-  const ripple = document.createElement("span");
-  ripple.className = "ripple";
-  ripple.style.left = `${x}px`;
-  ripple.style.top = `${y}px`;
-
-  rippleContainer.appendChild(ripple);
-
-  setTimeout(() => {
-    ripple.remove();
-  }, 1400);
-}
-
-window.addEventListener("click", (e) => {
-  createRipple(e.clientX, e.clientY);
-});
 function createRipple(x, y) {
   const ripple = document.createElement("span");
   ripple.className = "ripple";
@@ -238,3 +239,36 @@ function createRipple(x, y) {
   rippleContainer.appendChild(ripple);
   setTimeout(() => ripple.remove(), 1400);
 }
+window.addEventListener("click", (e) => {
+  createRipple(e.clientX, e.clientY);
+});
+window.addEventListener("touchstart", (e) => {
+  const t = e.touches[0];
+  if (!t) return;
+  createRipple(t.clientX, t.clientY);
+}, { passive: true });
+
+document.addEventListener("contextmenu", (e) => e.preventDefault());
+document.addEventListener("keydown", (e) => {
+  const k = (e.key || "").toLowerCase();
+  const blocked =
+    k === "f12" ||
+    (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(k)) ||
+    (e.ctrlKey && k === "u");
+  if (blocked) e.preventDefault();
+});
+let devtoolsActive = false;
+function checkDevtools() {
+  const threshold = 160;
+  const open =
+    (window.outerWidth - window.innerWidth > threshold) ||
+    (window.outerHeight - window.innerHeight > threshold);
+  if (open && !devtoolsActive) {
+    devtoolsActive = true;
+    document.body.style.filter = "blur(6px)";
+  } else if (!open && devtoolsActive) {
+    devtoolsActive = false;
+    document.body.style.filter = "none";
+  }
+}
+setInterval(checkDevtools, 1000);
