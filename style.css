@@ -1,0 +1,135 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top, #0f2027, #000);
+  height: 100vh;
+  overflow: hidden;
+  color: #fff;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  text-align: center;
+  margin-bottom: 30px;
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 10px #ffcc00; }
+  to { text-shadow: 0 0 30px #ff0066, 0 0 60px #ffcc00; }
+}
+
+#countdown {
+  display: flex;
+  gap: 20px;
+}
+
+#countdown div {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px 25px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 90px;
+  backdrop-filter: blur(10px);
+}
+
+#countdown span {
+  font-size: 2.5rem;
+  display: block;
+}
+
+#countdown small {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+#wishText {
+  margin-top: 20px;
+  font-size: 1.4rem;
+  text-align: center;
+  max-width: 80%;
+  animation: fade 2s infinite alternate;
+  color: #ffd700;
+}
+
+@keyframes fade {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+.click-hint {
+  position: fixed;
+  bottom: 20px;
+  text-align: center;
+  width: 100%;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+
+@media (max-width: 600px) {
+  h1 { font-size: 2.2rem; }
+  #countdown { gap: 10px; }
+}
+#ripple-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 1.4s ease-out forwards;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.9),
+    rgba(255, 0, 150, 0.6),
+    rgba(0, 200, 255, 0.3),
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(18);
+  }
+}
+.ripple {
+  background: radial-gradient(circle, var(--c1), var(--c2), var(--c3), transparent 70%);
+}
