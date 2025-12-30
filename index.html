@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -8,36 +9,61 @@
   <link rel="stylesheet" href="style.css">
   <script src="env.js"></script>
 </head>
+
 <body>
 
-<canvas id="fireworks"></canvas>
+  <canvas id="fireworks"></canvas>
 
-<div id="overlay" role="dialog" aria-modal="true">
-  <div class="overlay-card">
-    <h2 id="overlayTitle">Start Your Celebration</h2>
-    <form id="nameForm">
-      <input id="nameInput" type="text" placeholder="Your name" autocomplete="given-name" maxlength="40" />
-      <button type="submit" id="startBtn">Celebrate</button>
-    </form>
+  <div id="overlay" role="dialog" aria-modal="true">
+    <div class="overlay-card">
+      <h2 id="overlayTitle">Start Your Celebration</h2>
+      <form id="nameForm">
+        <input id="nameInput" type="text" placeholder="Your name" autocomplete="given-name" maxlength="40" />
+        <button type="submit" id="startBtn">Celebrate</button>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- templates removed; using external CSS/JS for reliability -->
+  <!-- templates removed; using external CSS/JS for reliability -->
 
-<div class="container">
-  <!-- <h1 id="title">🎆 Happy New Year 2026 🎆</h1> -->
-   <h1 id="title">🎊 Happy New Year in Advance 🎊</h1>
-<p id="wishText"></p>
-<div id="ripple-container"></div>
 
-  <div id="countdown">
-    <div><span id="days">00</span><small>Days</small></div>
-    <div><span id="hours">00</span><small>Hours</small></div>
-    <div><span id="minutes">00</span><small>Minutes</small></div>
-    <div><span id="seconds">00</span><small>Seconds</small></div>
+  <div class="container">
+    <!-- <h1 id="title">🎆 Happy New Year 2026 🎆</h1> -->
+    <h1 id="title">🎊 Happy New Year in Advance 🎊</h1>
+    <p id="wishText"></p>
+    <button id="sendWishBtn" class="action-btn">✨ Send a Wish</button>
+    <div id="ripple-container"></div>
+
+    <div id="countdown">
+      <div><span id="days">00</span><small>Days</small></div>
+      <div><span id="hours">00</span><small>Hours</small></div>
+      <div><span id="minutes">00</span><small>Minutes</small></div>
+      <div><span id="seconds">00</span><small>Seconds</small></div>
+    </div>
   </div>
-</div>
 
-<script src="script.js" defer></script>
+  <div id="shareModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <button id="closeModal" class="close-icon">&times;</button>
+      <h2>Send a Wish To</h2>
+      <div class="category-buttons">
+        <button class="cat-btn" data-category="family">Family 👨‍👩‍👧‍👦</button>
+        <button class="cat-btn" data-category="friends">Friends 👯‍♂️</button>
+        <button class="cat-btn" data-category="office">Office 💼</button>
+        <button class="cat-btn" data-category="other">Other 🌍</button>
+        <button class="cat-btn" data-category="custom">Custom ✍️</button>
+      </div>
+      <div id="generatedWishContainer" style="display: none;">
+        <textarea id="generatedWishInput" rows="4" placeholder="Type your wish here..."></textarea>
+        <div class="action-buttons">
+          <button id="copyBtn" class="action-btn-small">Copy</button>
+          <button id="whatsappBtn" class="action-btn-small whatsapp">WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
 </body>
+
 </html>

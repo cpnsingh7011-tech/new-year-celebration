@@ -82,7 +82,15 @@ timers.push(setInterval(randomWish, 4000));
 /* ======================
    COUNTDOWN + TEXT SWITCH
 ====================== */
+const urlParams = new URLSearchParams(window.location.search);
+const senderName = urlParams.get('from');
+
 function formatTitle(now) {
+  if (senderName && !celebrantName) {
+    return now >= newYearDate
+      ? `🎉 ${senderName} wishes you a Happy New Year 2026 🎉`
+      : `🎊 ${senderName} wishes you a Happy New Year in Advance 🎊`;
+  }
   const suffix = celebrantName ? `, ${celebrantName}` : "";
   return now >= newYearDate
     ? `🎉 Happy New Year 2026${suffix} 🎉`
@@ -98,6 +106,10 @@ function applyName(name) {
   localStorage.setItem("celebrantName", name);
   title.innerText = formatTitle(new Date().getTime());
   randomWish();
+
+  // Update URL without reloading to reflect the user's identity
+  const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?from=' + encodeURIComponent(name);
+  window.history.pushState({ path: newUrl }, '', newUrl);
 }
 
 function celebrateBurst() {
@@ -109,6 +121,13 @@ function celebrateBurst() {
 if (celebrantName) {
   overlay.style.display = "none";
   applyName(celebrantName);
+} else if (senderName) {
+  // If viewing a shared link, hide overlay initially so they see the greeting
+  overlay.style.display = "none";
+  // Optionally, show a "Create Your Own" button or rely on "Send a Wish" triggering name input?
+  // Actually, better to keep the overlay hidden and let them simply enjoy the view.
+  // We can add a "Create Your Own" button to the main UI if needed, 
+  // but for now, they can just use "Send a Wish" which will check name.
 } else {
   overlay.style.display = "flex";
   setTimeout(() => nameInput && nameInput.focus(), 100);
@@ -272,9 +291,9 @@ function createRipple(x, y) {
   const ripple = document.createElement("span");
   ripple.className = "ripple";
 
-  ripple.style.setProperty("--c1", `hsla(${Math.random()*360},100%,60%,0.9)`);
-  ripple.style.setProperty("--c2", `hsla(${Math.random()*360},100%,50%,0.6)`);
-  ripple.style.setProperty("--c3", `hsla(${Math.random()*360},100%,40%,0.3)`);
+  ripple.style.setProperty("--c1", `hsla(${Math.random() * 360},100%,60%,0.9)`);
+  ripple.style.setProperty("--c2", `hsla(${Math.random() * 360},100%,50%,0.6)`);
+  ripple.style.setProperty("--c3", `hsla(${Math.random() * 360},100%,40%,0.3)`);
 
   ripple.style.left = `${x}px`;
   ripple.style.top = `${y}px`;
@@ -297,11 +316,11 @@ document.addEventListener("keydown", (e) => {
   const blocked =
     k === "f12" ||
     (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(k)) ||
-    (e.ctrlKey && ["u","s","p","a","c","x","v"].includes(k)) ||
-    (e.metaKey && ["u","s","p","a","c","x","v"].includes(k));
+    (e.ctrlKey && ["u", "s", "p", "a", "c", "x", "v"].includes(k)) ||
+    (e.metaKey && ["u", "s", "p", "a", "c", "x", "v"].includes(k));
   if (blocked) e.preventDefault();
 });
-["copy","cut","paste","dragstart","selectstart"].forEach(evt => {
+["copy", "cut", "paste", "dragstart", "selectstart"].forEach(evt => {
   document.addEventListener(evt, (e) => e.preventDefault());
 });
 let devtoolsActive = false;
@@ -354,3 +373,114 @@ function applyTheme() {
   if (t.bg) root.style.setProperty("--bg", t.bg);
 }
 applyTheme();
+
+/* ======================
+   CATEGORIZED WISHES & SHARING
+====================== */
+const wishesFamily = [
+  "Wishing our family endless love, laughter, and togetherness in 2026! ❤️",
+  "May this New Year bring health and happiness to our beautiful family. 🏡",
+  "To the best family in the world, Happy New Year! Let's make more memories. 📸",
+  "Grateful for another year with you all. Happy New Year! 👨‍👩‍👧‍👦",
+  "May our home be filled with joy and peace this coming year. ✨",
+  "Family is everything. Wishing you all a blessed 2026! 🌟"
+];
+
+const wishesFriends = [
+  "Happy New Year to my partner in crime! Let's rock 2026! 🤘",
+  "Cheers to another year of friendship and crazy adventures! 🥂",
+  "New Year, same us (but better)! Happy New Year bestie! 👯‍♂️",
+  "Wishing you a year full of fun, excitement, and success! 🚀",
+  "Thanks for being an amazing friend. Have a blast in 2026! 🎉",
+  "Let's make this year legendary! Happy New Year! 💥"
+];
+
+const wishesOffice = [
+  "Wishing you a productive and successful New Year! 💼",
+  "Happy New Year! Looking forward to achieving new heights together. 📈",
+  "May this year bring new opportunities and great success to you. 🤝",
+  "Cheers to a year of hard work and big achievements! 🏆",
+  "Wishing you professional growth and happiness in 2026. 🌟",
+  "Let's reach new milestones this year. Happy New Year! 🚀"
+];
+
+const wishesOther = [
+  ...wishes // Use existing random wishes for "Other"
+];
+
+const sendWishBtn = document.getElementById("sendWishBtn");
+const shareModal = document.getElementById("shareModal");
+const closeModal = document.getElementById("closeModal");
+const generatedWishContainer = document.getElementById("generatedWishContainer");
+const generatedWishInput = document.getElementById("generatedWishInput");
+const copyBtn = document.getElementById("copyBtn");
+const whatsappBtn = document.getElementById("whatsappBtn");
+
+if (sendWishBtn) {
+  sendWishBtn.addEventListener("click", () => {
+    shareModal.style.display = "flex";
+    generatedWishContainer.style.display = "none";
+  });
+}
+
+if (closeModal) {
+  closeModal.addEventListener("click", () => {
+    shareModal.style.display = "none";
+  });
+}
+
+// Close modal if clicking outside
+window.addEventListener("click", (e) => {
+  if (e.target === shareModal) {
+    shareModal.style.display = "none";
+  }
+});
+
+document.querySelectorAll(".cat-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const category = btn.getAttribute("data-category");
+    let chosenWish = "";
+
+    if (category === "custom") {
+      chosenWish = "";
+    } else if (category === "family") {
+      chosenWish = wishesFamily[Math.floor(Math.random() * wishesFamily.length)];
+    } else if (category === "friends") {
+      chosenWish = wishesFriends[Math.floor(Math.random() * wishesFriends.length)];
+    } else if (category === "office") {
+      chosenWish = wishesOffice[Math.floor(Math.random() * wishesOffice.length)];
+    } else {
+      chosenWish = wishesOther[Math.floor(Math.random() * wishesOther.length)];
+    }
+
+    generatedWishInput.value = chosenWish;
+    generatedWishContainer.style.display = "block";
+
+    if (category === "custom") {
+      generatedWishInput.focus();
+    }
+  });
+});
+
+copyBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(generatedWishInput.value).then(() => {
+    const originalText = copyBtn.innerText;
+    copyBtn.innerText = "Copied!";
+    setTimeout(() => copyBtn.innerText = originalText, 2000);
+  });
+});
+
+whatsappBtn.addEventListener("click", () => {
+  if (!celebrantName) {
+    // If user hasn't entered name, prompt/focus them
+    shareModal.style.display = "none";
+    overlay.style.display = "flex";
+    nameInput.focus();
+    alert("Please enter your name first to personalize the wish!");
+    return;
+  }
+
+  const shareLink = window.location.origin + window.location.pathname + '?from=' + encodeURIComponent(celebrantName);
+  const text = encodeURIComponent(`${generatedWishInput.value}\n\nSee the celebration here: ${shareLink}`);
+  window.open(`https://wa.me/?text=${text}`, "_blank");
+});
