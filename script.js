@@ -4,6 +4,10 @@
 const newYearDate = new Date("January 1, 2026 00:00:00").getTime();
 const title = document.getElementById("title");
 const wishText = document.getElementById("wishText");
+const overlay = document.getElementById("overlay");
+const nameForm = document.getElementById("nameForm");
+const nameInput = document.getElementById("nameInput");
+let celebrantName = localStorage.getItem("celebrantName") || "";
 
 /* ======================
    55+ RANDOM WISHES
@@ -66,7 +70,8 @@ const wishes = [
 ];
 
 function randomWish() {
-  wishText.innerText = wishes[Math.floor(Math.random() * wishes.length)];
+  const w = wishes[Math.floor(Math.random() * wishes.length)];
+  wishText.innerText = celebrantName ? `${celebrantName}, ${w}` : w;
 }
 randomWish();
 setInterval(randomWish, 4000);
@@ -74,14 +79,46 @@ setInterval(randomWish, 4000);
 /* ======================
    COUNTDOWN + TEXT SWITCH
 ====================== */
+function formatTitle(now) {
+  const suffix = celebrantName ? `, ${celebrantName}` : "";
+  return now >= newYearDate
+    ? `🎉 Happy New Year 2026${suffix} 🎉`
+    : `🎊 Happy New Year in Advance${suffix} 🎊`;
+}
 setInterval(() => {
   const now = new Date().getTime();
-  if (now >= newYearDate) {
-    title.innerText = "🎉 Happy New Year 2026 🎉";
-  } else {
-    title.innerText = "🎊 Happy New Year in Advance 🎊";
-  }
+  title.innerText = formatTitle(now);
 }, 1000);
+
+function applyName(name) {
+  celebrantName = name;
+  localStorage.setItem("celebrantName", name);
+  title.innerText = formatTitle(new Date().getTime());
+  randomWish();
+}
+
+function celebrateBurst() {
+  const cx = Math.floor(window.innerWidth / 2);
+  for (let i = 0; i < 6; i++) fireworks.push(new Firework(cx + (Math.random() - 0.5) * 120));
+  createRipple(cx, Math.floor(window.innerHeight / 2));
+}
+
+if (celebrantName) {
+  overlay.style.display = "none";
+  applyName(celebrantName);
+} else {
+  overlay.style.display = "flex";
+  setTimeout(() => nameInput && nameInput.focus(), 100);
+}
+
+nameForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = (nameInput.value || "").trim();
+  if (!v) return;
+  overlay.style.display = "none";
+  applyName(v);
+  celebrateBurst();
+});
 
 /* ======================
    FIREWORKS SETUP
