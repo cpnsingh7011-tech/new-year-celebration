@@ -35,6 +35,43 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+(function(){
+  function open() {
+    var t = 160;
+    return (window.outerWidth - window.innerWidth > t) || (window.outerHeight - window.innerHeight > t);
+  }
+  function shield() {
+    var s = document.createElement("div");
+    s.className = "shield";
+    var m = document.createElement("div");
+    m.className = "msg";
+    m.textContent = "Protected mode is active";
+    s.appendChild(m);
+    document.body.appendChild(s);
+  }
+  function unshield() {
+    document.querySelectorAll(".shield").forEach(function(n){ n.remove(); });
+  }
+  function load() {
+    var el = document.createElement("script");
+    el.src = "script.js";
+    el.defer = true;
+    document.body.appendChild(el);
+  }
+  if (open()) {
+    shield();
+    var h = setInterval(function(){
+      if (!open()) {
+        clearInterval(h);
+        unshield();
+        load();
+      }
+    }, 1200);
+  } else {
+    load();
+  }
+})();
+</script>
 </body>
 </html>
