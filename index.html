@@ -8,6 +8,7 @@
   <style>
     .shield{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#000}
     .shield .msg{color:#fff;font-size:clamp(1.1rem,4.5vw,1.6rem);padding:16px 20px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18)}
+    .shield .btn{margin-top:14px;height:40px;border-radius:10px;border:none;padding:0 16px;color:#000;font-weight:600;cursor:pointer;background:linear-gradient(90deg,#ffd700,#ff6ec7,#00e0ff)}
   </style>
 </head>
 <body>
@@ -66,15 +67,25 @@
     el.defer = true;
     document.body.appendChild(el);
   }
-  if (open()) {
-    shield();
-    var h = setInterval(function(){
+  var STICKY_OPEN = open();
+  if (STICKY_OPEN) {
+    var s = document.createElement("div");
+    s.className = "shield";
+    var m = document.createElement("div");
+    m.className = "msg";
+    m.textContent = "Protected mode is active. Close DevTools to continue.";
+    var b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = "Continue";
+    b.addEventListener("click", function(){
       if (!open()) {
-        clearInterval(h);
         unshield();
         load();
       }
-    }, 1200);
+    });
+    s.appendChild(m);
+    s.appendChild(b);
+    document.body.appendChild(s);
   } else {
     load();
   }
