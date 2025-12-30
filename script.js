@@ -8,6 +8,8 @@ const overlay = document.getElementById("overlay");
 const nameForm = document.getElementById("nameForm");
 const nameInput = document.getElementById("nameInput");
 let celebrantName = localStorage.getItem("celebrantName") || "";
+let halted = false;
+const timers = [];
 
 /* ======================
    55+ RANDOM WISHES
@@ -74,7 +76,7 @@ function randomWish() {
   wishText.innerText = celebrantName ? `${celebrantName}, ${w}` : w;
 }
 randomWish();
-setInterval(randomWish, 4000);
+timers.push(setInterval(randomWish, 4000));
 
 /* ======================
    COUNTDOWN + TEXT SWITCH
@@ -85,10 +87,10 @@ function formatTitle(now) {
     ? `🎉 Happy New Year 2026${suffix} 🎉`
     : `🎊 Happy New Year in Advance${suffix} 🎊`;
 }
-setInterval(() => {
+timers.push(setInterval(() => {
   const now = new Date().getTime();
   title.innerText = formatTitle(now);
-}, 1000);
+}, 1000));
 
 function applyName(name) {
   celebrantName = name;
@@ -212,6 +214,7 @@ window.addEventListener("touchstart", (e) => {
    ANIMATION LOOP
 ====================== */
 function animate() {
+  if (halted) return;
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -257,7 +260,7 @@ function updateCountdown() {
   document.getElementById("seconds").innerText = String(seconds).padStart(2, "0");
 }
 updateCountdown();
-setInterval(updateCountdown, 1000);
+timers.push(setInterval(updateCountdown, 1000));
 /* ======================
    DEEP GRADIENT RIPPLE
 ====================== */
@@ -291,8 +294,12 @@ document.addEventListener("keydown", (e) => {
   const blocked =
     k === "f12" ||
     (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(k)) ||
-    (e.ctrlKey && k === "u");
+    (e.ctrlKey && ["u","s","p","a","c","x","v"].includes(k)) ||
+    (e.metaKey && ["u","s","p","a","c","x","v"].includes(k));
   if (blocked) e.preventDefault();
+});
+["copy","cut","paste","dragstart","selectstart"].forEach(evt => {
+  document.addEventListener(evt, (e) => e.preventDefault());
 });
 let devtoolsActive = false;
 function checkDevtools() {
@@ -302,10 +309,34 @@ function checkDevtools() {
     (window.outerHeight - window.innerHeight > threshold);
   if (open && !devtoolsActive) {
     devtoolsActive = true;
-    document.body.style.filter = "blur(6px)";
+    engageLockdown();
   } else if (!open && devtoolsActive) {
     devtoolsActive = false;
-    document.body.style.filter = "none";
+    releaseLockdown();
   }
 }
 setInterval(checkDevtools, 1000);
+
+function engageLockdown() {
+  halted = true;
+  while (timers.length) clearInterval(timers.pop());
+  const shield = document.createElement("div");
+  shield.className = "shield";
+  const msg = document.createElement("div");
+  msg.className = "msg";
+  msg.textContent = "Protected mode is active";
+  shield.appendChild(msg);
+  document.body.appendChild(shield);
+}
+function releaseLockdown() {
+  halted = false;
+  document.querySelectorAll(".shield").forEach(s => s.remove());
+  // restart timers
+  timers.push(setInterval(randomWish, 4000));
+  timers.push(setInterval(() => {
+    const now = new Date().getTime();
+    title.innerText = formatTitle(now);
+  }, 1000));
+  timers.push(setInterval(updateCountdown, 1000));
+  requestAnimationFrame(animate);
+}
